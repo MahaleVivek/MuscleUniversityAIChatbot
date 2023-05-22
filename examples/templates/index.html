@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+   <meta charset="UTF-8" />
+   <title>Chatbot Playground</title>
+   <link
+     href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
+     rel="stylesheet"
+   />
+   <style>
+       .navbar {
+       background-color: #241e18;
+       height: 80px;
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+       padding: 0 20px;
+       position: fixed;
+       top: 0;
+       left: 0;
+       right: 0;
+       z-index: 999;
+     }
+    
+     .navbar-title {
+       color: #dba308;
+       font-size: 34px;
+       font-weight: bold;
+     }
+     body {
+       background-color: #1f1f1f;
+       background-image:
+         linear-gradient(45deg, #292929 25%, transparent 25%),
+         linear-gradient(-45deg, #292929 25%, transparent 25%),
+         linear-gradient(45deg, transparent 75%, #292929 75%),
+         linear-gradient(-45deg, transparent 75%, #292929 75%);
+       background-size: 40px 40px;
+       background-position: 0 0, 0 20px, 20px -10px, -10px 0px;
+       animation: animatedBackground 15s ease infinite;
+     }
+
+
+     @keyframes animatedBackground {
+       0% {
+         background-position: 0 0, 0 20px, 20px -10px, -10px 0px;
+       }
+       100% {
+         background-position: 500px -500px, -200px 300px, 400px -100px, -100px 200px;
+       }
+     }
+
+
+     .chat-body {
+      
+       width: 950px;
+       margin: 50px auto;
+     }
+     .card-body {
+       background-color: #333;
+       color: #fff;
+       border-radius: 10px;
+     }
+     .server-message {
+       background-color: #444;
+       padding: 10px;
+       margin: 10px;
+       border-radius: 10px;
+     }
+     .client-message {
+       background-color: #555;
+       padding: 10px;
+       margin: 10px;
+       border-radius: 10px;
+     }
+     .form-inline {
+       display: flex;
+       justify-content: space-between;
+     }
+     .form-control {
+       width: 80%;
+       background-color: #333;
+       color: #fff;
+       border: none;
+       border-radius: 5px;
+       padding: 10px;
+       margin-right: 10px;
+     }
+     #send {
+       background-color: #4c4cff;
+       color: #fff;
+       border: none;
+       border-radius: 5px;
+       padding: 10px 20px;
+     }
+     .form-message {
+       margin-top: 10px;
+     }
+     .quote {
+     font-size: 20px;
+     text-align: center;
+     margin-top: 50px;
+     color: #fff;
+   }
+   .sitemap {
+     text-align: center;
+     margin-top: 20px;
+   }
+   .sitemap a {
+     color: #fff;
+     text-decoration: none;
+     margin: 5px;
+   }
+   .footer {
+     position: fixed;
+     bottom: 0;
+     left: 0;
+     width: 100%;
+     text-align: center;
+     padding: 10px 0;
+     background-color: #1f1f1f;
+   }
+   .footer-text {
+     color: #fff;
+     font-size: 14px;
+     font-style: italic;
+   }
+   .footer-line {
+     margin-top: 5px;
+     border: none;
+     height: 1px;
+     background-color: #fff;
+     background-image: linear-gradient(to right, transparent, #fff, transparent);
+   }
+   </style>
+   <script>
+     var endpoint = "ws://localhost:8000/ws";
+     var ws = new WebSocket(endpoint);
+     // Receive message from server word by word. Display the words as they are received.
+     ws.onmessage = function (event) {
+       var messages = document.getElementById("messages");
+       var data = JSON.parse(event.data);
+       if (data.sender === "bot") {
+         if (data.message_type === "start") {
+           var header = document.getElementById("header");
+           header.innerHTML = "Computing answer...";
+           var div = document.createElement("div");
+           div.className = "server-message";
+           var p = document.createElement("p");
+           p.innerHTML = "<strong>" + "Chatbot: " + "</strong>";
+           div.appendChild(p);
+           messages.appendChild(div);
+         } else if (data.message_type === "stream") {
+           var header = document.getElementById("header");
+           header.innerHTML = "Chatbot is typing...";
+           var p = messages.lastChild.lastChild;
+           if (data.message === "\n") {
+             p.innerHTML += "<br>";
+           } else {
+             p.innerHTML += data.message;
+           }
+         } else if (data.message_type === "info") {
+           var header = document.getElementById("header");
+           header.innerHTML = data.message;
+         } else if (data.message_type === "end") {
+           var header = document.getElementById("header");
+           header.innerHTML = "Ask a question";
+           var button = document.getElementById("send");
+           button.innerHTML = "Send";
+           button.disabled = false;
+         } else if (data.message_type === "error") {
+           var header = document.getElementById("header");
+           header.innerHTML = "Ask a question";
+           var button = document.getElementById("send");
+           button.innerHTML = "Send";
+           button.disabled = false;
+           var p = messages.lastChild.lastChild;
+           p.innerHTML += data.message;
+         }
+       } else {
+         var div = document.createElement("div");
+         div.className = "client-message";
+         var p = document.createElement("p");
+         p.innerHTML = "<strong>" + "You: " + "</strong>";
+         p.innerHTML += data.message;
+         div.appendChild(p);
+         messages.appendChild(div);
+       }
+       // Scroll to the bottom of the chat
+       messages.scrollTop = messages.scrollHeight;
+     };
+     // Send message to server
+     function sendMessage(event) {
+       event.preventDefault();
+       var message = document.getElementById("messageText").value;
+       if (message === "") {
+         return;
+       }
+       ws.send(message);
+       document.getElementById("messageText").value = "";
+
+
+       // Turn the button into a loading button
+       var button = document.getElementById("send");
+       button.innerHTML = "Loading...";
+       button.disabled = true;
+     }
+   </script>
+ </head>
+ <div class="animated-background"></div>
+ <body>
+ <!-- <body class="bg-black"> -->
+   <nav class="navbar">
+     <h1 class="navbar-title">Muscle University</h1>
+   </nav>
+   <h3 class="card-title text-center text-4xl font-bold text-white">
+             Welcome to Muscle University - Your Ultimate Fitness Chatbot!
+           </h3>
+   <div class="chat-body card">
+     <div class="card-body p-5">
+       <h5 class="card-title text-center text-xl font-bold text-white">
+         Your Ultimate Fitness Chatbot!
+       </h5>
+       <h4 class="card-text text-center text-lg text-white" id="header">
+         Get Expert Guidance for Your Fitness Journey - Ask Anything!
+       </h4>
+       <hr class="border-gray-500 mb-5" style="margin-top: 20px" />
+       <div
+         id="messages"
+         class="overflow-auto"
+         style="max-height: 500px"
+       ></div>
+       <form
+         action=""
+         class="form-inline mt-5"
+         id="chat-form"
+         onsubmit="sendMessage(event)"
+       >
+         <input
+           type="text"
+           class="form-control"
+           placeholder="Write your question"
+           id="messageText"
+         />
+         <button id="send" type="submit" class="btn btn-primary">Send</button>
+       </form>
+     </div>
+   </div>
+
+
+   <p class="quote">"Push your limits, break through barriers, and unleash the champion within. Fitness isn't just a journey; it's a lifestyle of strength, dedication, and endless possibilities."</p>
+
+
+   <div class="sitemap">
+     <a href="#fitness">Fitness</a> |
+     <a href="#workout">Workout</a> |
+     <a href="#diet">Diet</a> |
+     <a href="#grocery">Grocery Shopping</a>
+   </div>
+
+
+   <div class="footer">
+     <hr class="footer-line">
+     <p class="footer-text">Created by: Vivek Mahale</p>
+   </div>
+
+
+ </body>
+</html>
+
+
+
+
