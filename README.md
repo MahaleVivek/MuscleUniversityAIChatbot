@@ -14,13 +14,13 @@ Muscle University AI Chatbot is an advanced virtual assistant designed to help g
 ### Getting Started
 To get started with the Muscle University AI Chatbot, follow these steps:
 
-Clone the repository: `git clone https://github.com/MahaleVivek/muscle-university-ai-chatbot.git`
+Clone the repository: `git clone https://github.com/MahaleVivek/MuscleUniversityAIChatbot.git`
 
 Install the required dependencies: `pip install -r requirements.txt`
 
 Run the application: python app.py
 
-Access the chatbot interface in your web browser at http://localhost:8000
+Access the chatbot interface in your web browser at `http://localhost:8000`
 
 Interact with the chatbot by asking questions, requesting workout plans, or getting diet recommendations.
 
