@@ -18,7 +18,7 @@ Clone the repository: `git clone https://github.com/MahaleVivek/MuscleUniversity
 
 Install the required dependencies: `pip install -r requirements.txt`
 
-Run the application: python app.py
+Run the application: python examples/app/conversation_chain.py
 
 Access the chatbot interface in your web browser at `http://localhost:8000`
 
