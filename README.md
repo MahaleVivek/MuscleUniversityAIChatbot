@@ -16,6 +16,8 @@ To get started with the Muscle University AI Chatbot, follow these steps:
 
 Clone the repository: `git clone https://github.com/MahaleVivek/MuscleUniversityAIChatbot.git`
 
+built environment of your choice and 
+
 Install the required dependencies: `pip install -r requirements.txt`
 
 Run the application: `python examples/app/conversation_chain.py`
